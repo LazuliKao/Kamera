@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.compose.compose
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -40,13 +39,11 @@ kotlin {
 
         commonMain.dependencies {
             api(libs.kotlinx.coroutines.core)
-            api(libs.kotlinx.coroutines.test)
             api(libs.kermit)
-            api(compose.ui)
-            api(compose.material3)
-            api(compose.foundation)
-            api(libs.coil3.compose)
-            api(libs.coil3.ktor)
+            api(libs.jetbrains.compose.ui)
+            api(libs.jetbrains.compose.material3)
+            api(libs.jetbrains.compose.foundation)
+            implementation(libs.androidx.lifecycle.runtime.compose)
             api(libs.atomicfu)
         }
 

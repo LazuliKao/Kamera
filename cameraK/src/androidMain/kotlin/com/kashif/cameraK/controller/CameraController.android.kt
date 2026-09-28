@@ -1,7 +1,9 @@
 package com.kashif.cameraK.controller
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Environment
 import android.util.Rational
 import android.util.Size
@@ -166,7 +168,11 @@ actual class CameraController(
 
                 preview = Preview.Builder()
                     .setResolutionSelector(resolutionSelector)
-                    .apply { pinnedPhysicalId?.let { Camera2Interop.Extender(this).setPhysicalCameraId(it) } }
+                    .apply {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            pinnedPhysicalId?.let { Camera2Interop.Extender(this).setPhysicalCameraId(it) }
+                        }
+                    }
                     .build()
                     .also {
                         it.setSurfaceProvider(previewView.surfaceProvider)
@@ -387,7 +393,11 @@ actual class CameraController(
                 },
             )
             .setResolutionSelector(resolutionSelector)
-            .apply { pinnedPhysicalId?.let { Camera2Interop.Extender(this).setPhysicalCameraId(it) } }
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pinnedPhysicalId?.let { Camera2Interop.Extender(this).setPhysicalCameraId(it) }
+                }
+            }
             .build()
     }
 
@@ -451,7 +461,11 @@ actual class CameraController(
         val composite = MultiplexingAnalyzer(registeredAnalyzers.toList())
         return ImageAnalysis.Builder()
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .apply { pinnedPhysicalId?.let { Camera2Interop.Extender(this).setPhysicalCameraId(it) } }
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pinnedPhysicalId?.let { Camera2Interop.Extender(this).setPhysicalCameraId(it) }
+                }
+            }
             .build()
             .apply {
                 // Run analysis off the main thread — frame work (e.g. JPEG-encoding the analyzer
@@ -800,15 +814,16 @@ actual class CameraController(
             recordingOutputFile = outputFile
             val outputOptions = FileOutputOptions.Builder(outputFile).build()
 
-            val hasAudioPermission = ContextCompat.checkSelfPermission(
-                context,
-                android.Manifest.permission.RECORD_AUDIO,
-            ) == PackageManager.PERMISSION_GRANTED
-
-            val pendingRecording = vc.output.prepareRecording(context, outputOptions).apply {
-                if (configuration.enableAudio && hasAudioPermission) {
-                    withAudioEnabled()
-                }
+            val pendingRecording = vc.output.prepareRecording(context, outputOptions)
+            if (
+                configuration.enableAudio &&
+                ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.RECORD_AUDIO,
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                @SuppressLint("MissingPermission")
+                pendingRecording.withAudioEnabled()
             }
 
             activeRecording = pendingRecording.start(

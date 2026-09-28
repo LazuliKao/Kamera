@@ -21,8 +21,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
+import kotlin.time.Duration
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 /**
  * Pure Kotlin state holder for camera operations.
@@ -485,7 +486,6 @@ class CameraKStateHolder(
      *
      * @param configuration Recording settings.
      */
-    @OptIn(ExperimentalTime::class)
     fun startRecording(configuration: VideoConfiguration = VideoConfiguration()) {
         // Guard against double-start: a second start while recording would orphan the timer and the
         // platform recorder (leaking encoders/file handles) and confuse the duration/state.
@@ -522,21 +522,21 @@ class CameraKStateHolder(
 
                 // Start duration ticker with pause-aware elapsed tracking
                 recordingTimerJob = coroutineScope.launch {
-                    val startMs = Clock.System.now().toEpochMilliseconds()
-                    var pausedAccumulatorMs = 0L
-                    var pauseStartMs = 0L
+                    val startTime = TimeSource.Monotonic.markNow()
+                    var pausedDuration = Duration.ZERO
+                    var pauseStartTime: TimeMark? = null
                     while (isActive) {
                         delay(250L)
                         val isPaused = _uiState.value.isPaused
-                        val wasPaused = pauseStartMs > 0L
-                        if (isPaused && !wasPaused) {
-                            pauseStartMs = Clock.System.now().toEpochMilliseconds()
-                        } else if (!isPaused && wasPaused) {
-                            pausedAccumulatorMs += Clock.System.now().toEpochMilliseconds() - pauseStartMs
-                            pauseStartMs = 0L
+                        val pauseStart = pauseStartTime
+                        if (isPaused && pauseStart == null) {
+                            pauseStartTime = TimeSource.Monotonic.markNow()
+                        } else if (!isPaused && pauseStart != null) {
+                            pausedDuration += pauseStart.elapsedNow()
+                            pauseStartTime = null
                         }
                         if (isPaused) continue
-                        val elapsed = Clock.System.now().toEpochMilliseconds() - startMs - pausedAccumulatorMs
+                        val elapsed = (startTime.elapsedNow() - pausedDuration).inWholeMilliseconds
                         _uiState.value = _uiState.value.copy(recordingDurationMs = elapsed)
 
                         if (configuration.maxDurationMs > 0 && elapsed >= configuration.maxDurationMs) {

@@ -23,3 +23,5 @@ site/
 
 # GitHub Copilot Instructions (keep local only)
 .github/copilot-instructions.md
+/.omo
+/.playwright-mcp

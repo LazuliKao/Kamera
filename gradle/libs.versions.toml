@@ -1,6 +1,6 @@
 [versions]
 
-atomicfu = "0.29.0"
+atomicfu = "0.23.2"
 camera-core = "1.5.1"
 camera-extensions = "1.5.1"
 camera-lifecycle = "1.5.1"
@@ -8,18 +8,20 @@ camera-view = "1.5.1"
 core = "3.5.3"
 coreVersion = "3.5.3"
 javase = "3.5.3"
-kotlin = "2.2.21"
-agp = "8.9.1"
+kotlin = "2.0.21-KBA-013"
+agp = "8.5.2"
 dokka = "2.0.0"
 spotless = "7.0.2"
-kotlinx-coroutines = "1.10.2"
-kermit = "2.0.8"
+kotlinx-coroutines = "1.9.0"
+kermit = "2.0.5"
 
-compose-multiplatform = "1.9.3"
+compose-multiplatform = "1.6.1-KBA-007"
+compose-runtime = "1.6.1"
+lifecycle-runtime-compose = "2.8.0"
 activity = "1.9.2" # https://developer.android.com/jetpack/androidx/releases/activity
 coil-mp-version = "3.3.0"
 lucide-icons = "2.2.1"
-jetbrains-kotlin-jvm = "2.2.21"
+jetbrains-kotlin-jvm = "2.0.21-KBA-013"
 androidx-activityCompose = "1.11.0"
 startupRuntime = "1.2.0"
 javacvPlatform = "1.5.12"
@@ -49,6 +51,10 @@ kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 composeGradle = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-multiplatform" }
+jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-runtime" }
+jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-runtime" }
+jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-runtime" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-runtime-compose" }
 
 coil3 = { module = "io.coil-kt.coil3:coil", version.ref = "coil-mp-version" }
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil-mp-version" }
