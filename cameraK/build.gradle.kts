@@ -1,4 +1,4 @@
-import com.vanniktech.maven.publish.SonatypeHost
+﻿import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -73,7 +73,7 @@ kotlin {
 
 android {
     namespace = "com.kashif.cameraK"
-    compileSdk = 36
+    compileSdk = 35
     ndkVersion = "26.3.11579264" // NDK r26b+ uses 16KB page size defaults for native binaries
 
     defaultConfig {
@@ -141,8 +141,10 @@ mavenPublishing {
     // Configure publishing to Maven Central
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-    // Enable GPG signing for all publications
-    signAllPublications()
+    // Only sign when a GPG key is available (i.e. publishing to Maven Central, not local)
+    if (project.hasProperty("signing.keyId") || project.hasProperty("signing.gnupg.keyName")) {
+        signAllPublications()
+    }
 }
 
 tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {

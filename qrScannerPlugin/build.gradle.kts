@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.compose.compose
 
 plugins {
     alias(libs.plugins.multiplatform)
@@ -115,6 +114,8 @@ mavenPublishing {
     // Configure publishing to Maven Central
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-    // Enable GPG signing for all publications
-    signAllPublications()
+    // Only sign when a GPG key is available (i.e. publishing to Maven Central, not local)
+    if (project.hasProperty("signing.keyId") || project.hasProperty("signing.gnupg.keyName")) {
+        signAllPublications()
+    }
 }
